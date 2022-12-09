@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
+from typing import Iterable
 
 import pytest
 import assertpy
@@ -82,7 +83,7 @@ class Forest:
     def scenic_score(self, x: int, y: int) -> int:
         tree_house_height = self.tree(x, y)
         visible_trees_left = 0
-        for tree in reversed(self.trees_left(x, y)):
+        for tree in self.trees_left(x, y):
             visible_trees_left += 1
             if tree >= tree_house_height:
                 break
@@ -92,7 +93,7 @@ class Forest:
             if tree >= tree_house_height:
                 break
         visible_trees_top = 0
-        for tree in reversed(self.trees_top(x, y)):
+        for tree in self.trees_top(x, y):
             visible_trees_top += 1
             if tree >= tree_house_height:
                 break
@@ -121,16 +122,16 @@ class Forest:
     def __data_as_line(self):
         return self.data.replace('\n', '')
 
-    def trees_left(self, x: int, y: int) -> list[int]:
-        return self.__trees(y * self.width, y * self.width + x)
+    def trees_left(self, x: int, y: int) -> Iterable[int]:
+        return reversed(self.__trees(y * self.width, y * self.width + x))
 
-    def trees_right(self, x: int, y: int) -> list[int]:
+    def trees_right(self, x: int, y: int) -> Iterable[int]:
         return self.__trees(y * self.width + x + 1, (y + 1) * self.width)
 
-    def trees_top(self, x: int, y: int) -> list[int]:
-        return self.__trees(x, y * self.width + x, self.width)
+    def trees_top(self, x: int, y: int) -> Iterable[int]:
+        return reversed(self.__trees(x, y * self.width + x, self.width))
 
-    def trees_bottom(self, x: int, y: int) -> list[int]:
+    def trees_bottom(self, x: int, y: int) -> Iterable[int]:
         return self.__trees((y + 1) * self.width + x, self.width * self.height, self.width)
 
     def __trees(self, start: int, stop: int, increment: int = 1) -> list[int]:
